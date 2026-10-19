@@ -9,6 +9,8 @@ from starlette.concurrency import run_in_threadpool
 
 from app import db
 from app.document_api import router as document_router
+from app.search_api import router as search_router
+from app.embeddings import EmbeddingError
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +24,17 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="EvidenceDesk",
-    description="Document answers with verifiable sources. PDF/TXT ingestion and document statuses.",
-    version="0.2.0",
+    description="Document ingestion and lexical, vector, and hybrid search with local Ollama embeddings.",
+    version="0.3.0",
     lifespan=lifespan,
 )
 app.include_router(document_router)
+app.include_router(search_router)
+
+
+@app.exception_handler(EmbeddingError)
+async def embedding_error(request, exc):
+    return JSONResponse(status_code=exc.status, content={"detail": {"code": exc.code, "message": str(exc)}})
 
 
 @app.exception_handler(psycopg.Error)

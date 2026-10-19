@@ -15,3 +15,7 @@ MAX_PDF_PAGES = positive_int("MAX_PDF_PAGES", 300)
 MAX_TEXT_CHARS = positive_int("MAX_TEXT_CHARS", 2_000_000)
 CHUNK_SIZE = 1200
 CHUNK_OVERLAP = 200
+
+# Changing the model/dimensions requires reindexing and a matching SQL migration.
+EMBEDDING_MODEL = "embeddinggemma:300m"
+EMBEDDING_DIMENSIONS = 768

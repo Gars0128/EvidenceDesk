@@ -10,6 +10,9 @@ APP_DIR = Path(__file__).resolve().parent
 
 MIGRATIONS = (
     (2, APP_DIR / "migrations" / "002_documents.sql"),
+    (3, APP_DIR / "migrations" / "003_lexical_search.sql"),
+    (4, APP_DIR / "migrations" / "004_embeddings.sql"),
+    (5, APP_DIR / "migrations" / "005_local_embeddings.sql"),
 )
 
 LATEST_SCHEMA_VERSION = MIGRATIONS[-1][0]

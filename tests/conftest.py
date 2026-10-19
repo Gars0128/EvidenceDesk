@@ -1,5 +1,8 @@
 from io import BytesIO
+import os
+import json
 
+import psycopg
 import pytest
 from pypdf import PdfWriter
 from pypdf.generic import DecodedStreamObject, DictionaryObject, NameObject
@@ -18,6 +21,61 @@ def pytest_collection_modifyitems(config, items):
         for item in items:
             if "integration" in item.keywords:
                 item.add_marker(pytest.mark.skip(reason="Pass --integration and set TEST_DATABASE_URL"))
+
+
+@pytest.fixture
+def postgres(monkeypatch):
+    """Use a disposable PostgreSQL database, never the application's database."""
+    from app import db
+
+    url = os.environ.get("TEST_DATABASE_URL")
+    if not url:
+        pytest.fail("Set TEST_DATABASE_URL to an isolated database ending in _test")
+    with psycopg.connect(url) as connection:
+        if not connection.info.dbname.endswith("_test"):
+            pytest.fail("Refusing to modify a database whose name does not end in _test")
+    monkeypatch.setenv("DATABASE_URL", url)
+    db.initialize()
+    with db.connect() as connection:
+        connection.execute("TRUNCATE documents CASCADE")
+    yield
+    with db.connect() as connection:
+        connection.execute("TRUNCATE documents CASCADE")
+
+
+@pytest.fixture
+def fake_ollama(monkeypatch):
+    """Replace only Ollama's HTTP boundary; retrieval and SQL stay real."""
+    import httpx2 as httpx
+    from app import embeddings
+
+    real_client = httpx.Client
+    state = {
+        "requests": [], "error": None, "override": None, "error_after": 0,
+        "vector_for": lambda text: [1.0] + [0.0] * 767,
+    }
+
+    def respond(request):
+        body = json.loads(request.content)
+        state["requests"].append(body)
+        error = state["error"] if len(state["requests"]) > state["error_after"] else None
+        if error == "connection":
+            raise httpx.ConnectError("provider-private-secret", request=request)
+        if error == "timeout":
+            raise httpx.ReadTimeout("provider-private-secret", request=request)
+        if error:
+            return httpx.Response(error, json={"error": "provider-private-secret"})
+        if state["override"] is not None:
+            return httpx.Response(200, json=state["override"])
+        return httpx.Response(200, json={
+            "model": "embeddinggemma:300m",
+            "embeddings": [state["vector_for"](text) for text in body["input"]],
+        })
+
+    monkeypatch.setattr(embeddings.httpx, "Client", lambda **kwargs: real_client(
+        **kwargs, transport=httpx.MockTransport(respond),
+    ))
+    return state
 
 
 @pytest.fixture

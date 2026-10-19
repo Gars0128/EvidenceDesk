@@ -8,8 +8,8 @@ The goal is a working end-to-end flow with minimal infrastructure.
 - Python, FastAPI, PostgreSQL + pgvector, Docker Compose.
 - Plain HTML/CSS/JavaScript UI without a separate frontend framework.
 - Text-based PDFs and UTF-8 TXT; no OCR in the first version.
-- One provider: OpenAI for embeddings and generation, configured through environment variables.
-- Without an API key, ingestion and lexical search work. Semantic search and generation return clear configuration errors, not simulated results.
+- One local provider: Ollama. Embeddings use `embeddinggemma:300m`; choose one local chat model in the answer-generation step.
+- No paid API key is required. Lexical search needs PostgreSQL; semantic search also needs Ollama and the downloaded embedding model.
 - Synchronous ingestion initially; no queue or worker.
 - Preserve PDF page numbers; TXT uses page 1.
 - Local, single-user use. Public deployment and authentication are outside the MVP.
@@ -43,6 +43,8 @@ when a PDF has no extractable text layer.
 Acceptance: test TXT, multipage PDF, corrupt files, duplicates, and page numbers.
 
 ### 3. `feat: add lexical vector and hybrid retrieval`
+
+Status: implemented with local Ollama and verified on October 19, 2026; awaiting the user's commit.
 
 Implement `POST /api/search` with query, mode, and top_k. Use PostgreSQL full-text
 search for Russian/English text, embeddings with pgvector cosine search, and
@@ -83,8 +85,8 @@ Acceptance: repeatable evaluation with parameters and measurement dates.
 
 ### 7. `docs: finish setup guide and demo walkthrough`
 
-Verify clean-environment startup using the README. Document API key setup,
-limitations, external API costs, and troubleshooting. Include a short demo and
+Verify clean-environment startup using the README. Document local model setup,
+hardware requirements, limitations, and troubleshooting. Include a short demo and
 measured quality report.
 
 Acceptance: a new user can start the app and complete the demo without reading code.

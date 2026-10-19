@@ -3,12 +3,13 @@
 Answers about travel documents with verifiable document names, pages, and quotations.
 See [PLAN.md](PLAN.md) for the incremental implementation plan.
 
-**Current stage: PDF/TXT ingestion is implemented.** Upload documents, inspect
-processing statuses, and preserve page-aware text chunks. Search, answers, and
-the UI come in later steps. No LLM API key is needed yet.
+**Current stage: ingestion and retrieval.** Upload PDF/TXT files and compare
+lexical, vector, and hybrid search with document/page sources. Embeddings run
+locally through Ollama; no paid API key is needed. Answers and the UI come later.
 
 See [the ingestion guide](docs/ingestion.md) for API examples, limits, architecture,
 and the test report.
+See [the search guide](docs/search.md) for model setup and retrieval examples.
 
 ## Docker quick start
 
@@ -18,6 +19,7 @@ must use Linux containers. From the repository root in PowerShell:
 ```powershell
 Copy-Item .env.example .env
 docker compose up --build -d --wait
+docker compose exec ollama ollama pull embeddinggemma:300m
 ```
 
 On macOS/Linux use `cp .env.example .env` for the first command.
@@ -36,7 +38,8 @@ waits for database readiness before starting the API. Health checks the live
 connection, vector extension, and schema version; a database outage returns 503.
 Schema initialization failure prevents API startup.
 
-Data persists in a named Docker volume. Both ports bind only to localhost.
+Database data and Ollama models persist in separate named Docker volumes.
+Published ports bind only to localhost.
 PostgreSQL is exposed on port 55432 to avoid common local port conflicts.
 Example credentials are for local development; this unauthenticated setup is
 intended for local use.
@@ -48,7 +51,7 @@ docker compose down
 ```
 
 Stopping containers preserves data. `docker compose down --volumes` also
-**deletes the project's database data**; use it only for an intentional reset.
+**deletes the project's database data and downloaded models**; use it only for an intentional reset.
 
 ## Local Python development
 
@@ -56,7 +59,8 @@ Use Python 3.13. Start PostgreSQL with Docker and run the API locally:
 
 ```powershell
 Copy-Item .env.example .env
-docker compose up -d --wait db
+docker compose up -d --wait db ollama
+docker compose exec ollama ollama pull embeddinggemma:300m
 python -m venv .venv
 .\.venv\Scripts\python -m pip install -r requirements-dev.txt
 $env:PGHOST = "127.0.0.1"
@@ -116,12 +120,16 @@ app/document_api.py  Upload/list endpoints and response models
 app/documents.py   Document, page, and chunk persistence
 app/ingestion.py   Filename checks, PDF/TXT extraction, and chunking
 app/config.py      Configurable ingestion limits
+app/embeddings.py  Local Ollama embedding requests and validation
+app/search.py      Lexical, cosine, hybrid retrieval and explicit indexing
+app/search_api.py  Search request/response contract
 app/db.py          Connections, migrations, and interrupted-job recovery
 app/schema.sql     Baseline schema
 app/migrations/    Versioned SQL changes
 compose.yaml      API and PostgreSQL services
 tests/            Unit, API, and real PostgreSQL tests
 docs/ingestion.md  Ingestion contract and verification report
+docs/search.md     Local model setup and retrieval verification
 PLAN.md           Implementation steps
 ```
 

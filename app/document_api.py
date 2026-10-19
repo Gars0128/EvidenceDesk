@@ -11,7 +11,7 @@ from fastapi import APIRouter, File, HTTPException, Query, UploadFile
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 
-from app import config, documents
+from app import config, documents, search
 from app.ingestion import ProcessingError, clean_filename, extract_pages
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
@@ -29,6 +29,9 @@ class DocumentResponse(BaseModel):
     created_at: datetime
     page_count: int = 0
     chunk_count: int = 0
+    embedding_status: Literal["pending", "ready", "error"] = "pending"
+    embedding_error: str | None = None
+    embedding_model: str | None = None
 
 
 def upload_error(status: int, code: str, message: str, document: dict | None = None):
@@ -44,6 +47,25 @@ def list_uploaded_documents(
     offset: int = Query(default=0, ge=0),
 ):
     return documents.list_documents(limit, offset)
+
+
+@router.post("/{document_id}/index", response_model=DocumentResponse, responses={
+    404: {"description": "Document not found"},
+    409: {"description": "Document text is not ready"},
+    502: {"description": "Embedding provider error"},
+    503: {"description": "Ollama/model unavailable, busy service, or database unavailable"},
+    504: {"description": "Embedding provider timeout"},
+})
+def index_uploaded_document(document_id: UUID):
+    document = documents.get_document(document_id)
+    if document is None:
+        raise upload_error(404, "document_not_found", "Document not found.")
+    if document["status"] != "ready":
+        raise upload_error(409, "document_not_ready", "Only documents with ready text can be indexed.", document)
+    if document["embedding_status"] == "ready" and document["embedding_model"] == config.EMBEDDING_MODEL:
+        return document
+    search.index_document(document_id)
+    return documents.get_document(document_id)
 
 
 @router.post(

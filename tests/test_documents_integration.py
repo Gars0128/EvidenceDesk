@@ -1,7 +1,6 @@
 """Real PostgreSQL tests. Only run against a dedicated database ending in _test."""
 
 import hashlib
-import os
 from concurrent.futures import ThreadPoolExecutor
 
 import psycopg
@@ -16,20 +15,8 @@ pytestmark = pytest.mark.integration
 
 
 @pytest.fixture(autouse=True)
-def isolated_database(monkeypatch):
-    url = os.environ.get("TEST_DATABASE_URL")
-    if not url:
-        pytest.fail("Set TEST_DATABASE_URL to an isolated database ending in _test")
-    with psycopg.connect(url) as connection:
-        if not connection.info.dbname.endswith("_test"):
-            pytest.fail("Refusing to modify a database whose name does not end in _test")
-    monkeypatch.setenv("DATABASE_URL", url)
-    db.initialize()
-    with db.connect() as connection:
-        connection.execute("TRUNCATE documents CASCADE")
-    yield
-    with db.connect() as connection:
-        connection.execute("TRUNCATE documents CASCADE")
+def isolated_database(postgres):
+    pass
 
 
 def create(text="unique document"):

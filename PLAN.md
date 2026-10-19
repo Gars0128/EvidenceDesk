@@ -1,99 +1,94 @@
-# EvidenceDesk — план первой версии
+﻿# EvidenceDesk — MVP implementation plan
 
-Небольшое приложение для вопросов по загруженным документам о поездке.
-Главная цель: рабочий сквозной сценарий без лишней инфраструктуры.
+A small application for answering questions about uploaded travel documents.
+The goal is a working end-to-end flow with minimal infrastructure.
 
-## Решения для первой версии
+## Scope
 
-- Python + FastAPI, PostgreSQL + pgvector, Docker Compose.
-- Простой интерфейс на HTML/CSS/JavaScript без отдельного frontend-фреймворка.
-- PDF с текстовым слоем и TXT в UTF-8. OCR пока не делаем.
-- Один провайдер: OpenAI для embeddings и генерации; ключ задаётся через окружение.
-- Без ключа доступны загрузка документов и lexical-поиск; semantic-поиск и генерация возвращают понятную ошибку настройки. Не подменяем их имитацией.
-- Синхронная обработка загрузки на первом этапе, без очереди и отдельного worker.
-- Страницы PDF сохраняем; у TXT используем условную страницу 1.
-- Приложение для локального запуска одним пользователем; публичное размещение и авторизация вне первой версии.
+- Python, FastAPI, PostgreSQL + pgvector, Docker Compose.
+- Plain HTML/CSS/JavaScript UI without a separate frontend framework.
+- Text-based PDFs and UTF-8 TXT; no OCR in the first version.
+- One provider: OpenAI for embeddings and generation, configured through environment variables.
+- Without an API key, ingestion and lexical search work. Semantic search and generation return clear configuration errors, not simulated results.
+- Synchronous ingestion initially; no queue or worker.
+- Preserve PDF page numbers; TXT uses page 1.
+- Local, single-user use. Public deployment and authentication are outside the MVP.
 
-## Небольшие коммиты по порядку
+## Commit-sized steps
 
 ### 0. `docs: record MVP implementation plan`
 
-Этот план. Фиксируем границы проекта перед кодом.
+Record scope and acceptance criteria before coding.
 
 ### 1. `chore: bootstrap FastAPI and PostgreSQL`
 
-- Структура приложения, зависимости, Dockerfile, Compose, `.env.example`, `.gitignore`.
-- PostgreSQL с расширением vector и начальной схемой.
-- Health endpoint, проверяющий подключение к базе.
-- README с командами запуска.
+Status: completed and verified on October 19, 2026.
 
-Проверка: приложение и база запускаются; health сообщает готовность.
+Application structure, dependencies, Dockerfile, Compose, `.env.example`, `.gitignore`,
+PostgreSQL with vector extension and initial schema, database readiness endpoint,
+and README startup instructions.
+
+Acceptance: application and database start; health reports readiness.
 
 ### 2. `feat: ingest PDF and TXT with source pages`
 
-- `POST /api/documents`, `GET /api/documents`.
-- Ограничение размера и поддерживаемых форматов; безопасные имена файлов.
-- Документы, страницы и фрагменты; состояния processing, ready, error.
-- SHA-256 для явного обнаружения повторной загрузки.
-- Ошибка повреждённого PDF сохраняется в статусе документа и не ломает сервис.
-- PDF без извлекаемого текста получает сообщение об отсутствии текстового слоя.
+Implement `POST /api/documents` and `GET /api/documents`. Enforce file size and
+format limits and safe filenames. Store documents, pages, chunks, and
+processing/ready/error states. Detect duplicates using SHA-256 and report them
+explicitly. Persist corrupt-PDF errors without breaking other requests. Explain
+when a PDF has no extractable text layer.
 
-Проверка: TXT, многостраничный PDF, повреждённый файл, дубликат и сохранение номера страницы.
+Acceptance: test TXT, multipage PDF, corrupt files, duplicates, and page numbers.
 
 ### 3. `feat: add lexical vector and hybrid retrieval`
 
-- `POST /api/search`: query, mode, top_k.
-- Полнотекстовый поиск PostgreSQL с учётом русского и английского текста.
-- Embeddings и cosine-поиск через pgvector; модель и размерность фиксируем в конфигурации.
-- Hybrid объединяет ранги через reciprocal rank fusion.
-- Ошибка провайдера не удаляет извлечённый текст; повторная индексация доступна явно.
-- Возвращаем ID фрагмента, документ, страницу, текст и оценку поиска.
+Implement `POST /api/search` with query, mode, and top_k. Use PostgreSQL full-text
+search for Russian/English text, embeddings with pgvector cosine search, and
+reciprocal rank fusion for hybrid retrieval. Fix the embedding model and dimensions
+in configuration. Preserve extracted text on provider failures and allow explicit
+reindexing. Return chunk ID, document, page, text, and score.
 
-Проверка: точное название, смысловой запрос, пустая база, отсутствие ключа и сбой провайдера.
+Acceptance: exact names, semantic queries, empty database, missing key, and provider failures.
 
 ### 4. `feat: answer questions with validated citations`
 
-- `POST /api/ask` использует найденные фрагменты как контекст.
-- Структурированный ответ: утверждения и ссылки на ID фрагментов.
-- Источник содержит документ, страницу и дословную цитату.
-- Проверяем, что ID относится к переданному контексту, а цитата присутствует в нём.
-- При отсутствии достаточных сведений: «В загруженных документах ответ не найден».
-- Документы считаются данными, а не инструкциями для модели.
-- Не выдаём проверку ID и цитаты за доказательство смысловой поддержки ответа.
+Implement `POST /api/ask` with retrieved context and structured claims referencing
+chunk IDs. Include document, page, and exact quotation. Validate that source IDs
+belong to the supplied context and quotations occur in those sources. Abstain when
+evidence is insufficient: "No answer was found in the uploaded documents."
+Treat document contents as data, not model instructions. Citation ID and quotation
+checks do not prove semantic support for a claim.
 
-Проверка: вопрос с ответом, без ответа, ответ по нескольким документам и выдуманный ID источника.
+Acceptance: answerable, unanswerable, cross-document questions, and fabricated source IDs.
 
 ### 5. `feat: add simple document and question UI`
 
-- Три области: документы, вопрос, ответ с источниками.
-- Загрузка, статусы, понятные ошибки и состояние ожидания.
-- Дополнительная панель: режим поиска, top_k, просмотр найденных фрагментов.
-- Источники можно раскрыть и прочитать, включая страницу и цитату.
+Three areas: documents, question, answer with sources. Add upload statuses, clear
+errors, loading feedback, expandable citations, and advanced controls for search
+mode, top_k, and retrieved chunks.
 
-Проверка: полный сценарий через браузер и корректное отображение ошибок.
+Acceptance: complete the full flow in a browser, including errors.
 
 ### 6. `feat: add optional reranking and retrieval evaluation`
 
-- Необязательная повторная сортировка кандидатов через того же LLM-провайдера.
-- Небольшой набор демонстрационных документов и 30 размеченных вопросов.
-- Обычные вопросы, точные названия, несколько документов, вопросы без ответа.
-- Скрипт сравнения lexical/vector/hybrid, с reranking и без него.
-- Отчёт: recall@k, задержка, корректность отказов и примеры ошибок.
-- Отдельная ручная оценка: действительно ли источники поддерживают утверждения ответа.
-- Фиксируем реальные измерения; заранее не обещаем улучшений от hybrid или reranking.
+Optional candidate reranking through the same LLM provider. Add demo documents and
+30 labelled questions: ordinary, exact-name, cross-document, and unanswerable.
+Compare lexical/vector/hybrid with and without reranking. Report recall@k,
+latency, abstention accuracy, and failures. Separately review whether cited evidence
+supports answer claims. Record real measurements without assuming improvements.
 
-Проверка: повторяемый запуск оценки; результаты содержат параметры и дату измерения.
+Acceptance: repeatable evaluation with parameters and measurement dates.
 
 ### 7. `docs: finish setup guide and demo walkthrough`
 
-- Проверяем запуск с чистого окружения по README.
-- Описываем настройку ключа, ограничения, стоимость внешних вызовов и устранение типичных ошибок.
-- Добавляем короткий сценарий демонстрации и фактический отчёт качества.
+Verify clean-environment startup using the README. Document API key setup,
+limitations, external API costs, and troubleshooting. Include a short demo and
+measured quality report.
 
-Проверка: новый пользователь может запустить приложение и пройти сценарий без чтения кода.
+Acceptance: a new user can start the app and complete the demo without reading code.
 
-## Порядок работы
+## Working agreement
 
-Делаем один шаг за раз: реализация → подходящая проверка → небольшой коммит → краткий результат.
-Не добавляем LangChain, OCR, очереди, отдельный frontend или авторизацию без конкретной необходимости.
-Первый шаг с кодом — каркас приложения и база; сейчас фиксируем только план.
+One step at a time: implement, run appropriate checks, make a small commit, report results.
+Keep documentation in English. Do not add LangChain, OCR, queues, a separate
+frontend, or authentication without a concrete need.

@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 
 from app import embeddings, search
+from app.reranking import rerank_hits
 
 router = APIRouter(prefix="/api/search", tags=["search"])
 
@@ -17,6 +18,7 @@ class SearchRequest(BaseModel):
     query: str = Field(min_length=1, max_length=2000)
     mode: Literal["lexical", "vector", "hybrid"] = "lexical"
     top_k: int = Field(default=5, ge=1, le=20)
+    rerank: bool = False
 
 
 class SearchHit(BaseModel):
@@ -29,6 +31,7 @@ class SearchHit(BaseModel):
     score: float
     lexical_rank: int | None = None
     vector_rank: int | None = None
+    rerank_rank: int | None = None
 
 
 class SearchResponse(BaseModel):
@@ -38,6 +41,7 @@ class SearchResponse(BaseModel):
     total_chunks: int
     indexed_chunks: int
     warnings: list[str] = Field(default_factory=list)
+    reranked: bool = False
 
 
 @router.post("", response_model=SearchResponse, responses={
@@ -50,8 +54,9 @@ def search_documents(request: SearchRequest):
     start = perf_counter()
     total, indexed = search.corpus_counts()
     warnings = []
+    limit = max(request.top_k, 10) if request.rerank else request.top_k
     if request.mode == "lexical":
-        results = search.lexical_search(request.query, request.top_k)
+        results = search.lexical_search(request.query, limit)
     elif total == 0:
         results = []
     else:
@@ -60,9 +65,13 @@ def search_documents(request: SearchRequest):
         if indexed < total:
             warnings.append("Some document chunks have no embeddings; semantic search covers only indexed chunks.")
         vector = embeddings.embed_texts([request.query], query=True)[0]
-        results = (search.vector_search(vector, request.top_k) if request.mode == "vector"
-                   else search.hybrid_search(request.query, vector, request.top_k))
+        results = (search.vector_search(vector, limit) if request.mode == "vector"
+                   else search.hybrid_search(request.query, vector, limit))
+    reranked = bool(request.rerank and results)
+    if reranked:
+        results = rerank_hits(request.query, results)[:request.top_k]
     return SearchResponse(
         mode=request.mode, results=results, elapsed_ms=(perf_counter() - start) * 1000,
         total_chunks=total, indexed_chunks=indexed, warnings=warnings,
+        reranked=reranked,
     )

@@ -31,7 +31,7 @@ def postgres(monkeypatch):
     url = os.environ.get("TEST_DATABASE_URL")
     if not url:
         pytest.fail("Set TEST_DATABASE_URL to an isolated database ending in _test")
-    with psycopg.connect(url) as connection:
+    with psycopg.connect(url, connect_timeout=3) as connection:
         if not connection.info.dbname.endswith("_test"):
             pytest.fail("Refusing to modify a database whose name does not end in _test")
     monkeypatch.setenv("DATABASE_URL", url)
@@ -53,6 +53,7 @@ def fake_ollama(monkeypatch):
     state = {
         "requests": [], "error": None, "override": None, "error_after": 0,
         "vector_for": lambda text: [1.0] + [0.0] * 767,
+        "chat_responses": [],
     }
 
     def respond(request):
@@ -67,6 +68,12 @@ def fake_ollama(monkeypatch):
             return httpx.Response(error, json={"error": "provider-private-secret"})
         if state["override"] is not None:
             return httpx.Response(200, json=state["override"])
+        if request.url.path == "/api/chat":
+            content = state["chat_responses"].pop(0) if state["chat_responses"] else {"insufficient_evidence": True, "claims": []}
+            return httpx.Response(200, json={
+                "model": "qwen3:1.7b", "done": True, "done_reason": "stop",
+                "message": {"role": "assistant", "content": json.dumps(content)},
+            })
         return httpx.Response(200, json={
             "model": "embeddinggemma:300m",
             "embeddings": [state["vector_for"](text) for text in body["input"]],

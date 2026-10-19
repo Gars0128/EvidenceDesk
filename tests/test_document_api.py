@@ -127,3 +127,13 @@ def test_unexpected_failure_marks_error(client, memory_store, monkeypatch):
     assert response.status_code == 500
     assert next(iter(memory_store.values()))["status"] == "error"
     assert "internal-path-and-secret" not in response.text
+
+
+def test_sql_bug_is_not_misreported_as_database_outage(client, monkeypatch):
+    def fail(*args, **kwargs):
+        raise psycopg.ProgrammingError("internal query and private-secret")
+    monkeypatch.setattr(psycopg, "connect", fail)
+    response = client.get("/api/documents")
+    assert response.status_code == 500
+    assert response.json()["detail"]["code"] == "database_error"
+    assert "private-secret" not in response.text

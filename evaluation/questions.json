@@ -1,0 +1,486 @@
+[
+  {
+    "id": "q01",
+    "category": "ordinary",
+    "question": "How far in advance can I cancel Aurora Hotel for free?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "aurora_hotel.txt",
+        "page_number": 1,
+        "contains": "free cancellation until 48 hours"
+      }
+    ],
+    "expected_fact_patterns": [
+      "48"
+    ]
+  },
+  {
+    "id": "q02",
+    "category": "ordinary",
+    "question": "What is the minimum guest age at Borealis Hotel?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "borealis_hotel.txt",
+        "page_number": 1,
+        "contains": "at least 12 years old"
+      }
+    ],
+    "expected_fact_patterns": [
+      "12"
+    ]
+  },
+  {
+    "id": "q03",
+    "category": "ordinary",
+    "question": "How long does the Harbor Discovery Walk last?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "harbor_walk.txt",
+        "page_number": 1,
+        "contains": "lasts 90 minutes"
+      }
+    ],
+    "expected_fact_patterns": [
+      "90"
+    ]
+  },
+  {
+    "id": "q04",
+    "category": "ordinary",
+    "question": "What is the minimum child age for Castle Adventure?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "castle_adventure.txt",
+        "page_number": 1,
+        "contains": "children aged 8 and older"
+      }
+    ],
+    "expected_fact_patterns": [
+      "8"
+    ]
+  },
+  {
+    "id": "q05",
+    "category": "ordinary",
+    "question": "How many hours before departure can I cancel the River Lights Cruise for free?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "river_cruise.txt",
+        "page_number": 1,
+        "contains": "until 12 hours before departure"
+      }
+    ],
+    "expected_fact_patterns": [
+      "12"
+    ]
+  },
+  {
+    "id": "q06",
+    "category": "ordinary",
+    "question": "Is a helmet included in the Forest Cycling Trail?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "forest_cycling.txt",
+        "page_number": 1,
+        "contains": "Helmets and bicycles are included"
+      }
+    ],
+    "expected_fact_patterns": [
+      "helmet"
+    ]
+  },
+  {
+    "id": "q07",
+    "category": "ordinary",
+    "question": "On which day is the City Museum closed?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "museum_visit.txt",
+        "page_number": 1,
+        "contains": "closed on Mondays"
+      }
+    ],
+    "expected_fact_patterns": [
+      "Monday"
+    ]
+  },
+  {
+    "id": "q08",
+    "category": "ordinary",
+    "question": "How large must a group be to require an advance group reservation?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "booking_terms.txt",
+        "page_number": 1,
+        "contains": "Groups of 6 or more"
+      }
+    ],
+    "expected_fact_patterns": [
+      "6"
+    ]
+  },
+  {
+    "id": "q09",
+    "category": "exact_name",
+    "question": "At Aurora Hotel, what does the airport shuttle cost per person each way?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "aurora_hotel.txt",
+        "page_number": 1,
+        "contains": "shuttle costs EUR 12"
+      }
+    ],
+    "expected_fact_patterns": [
+      "12"
+    ]
+  },
+  {
+    "id": "q10",
+    "category": "exact_name",
+    "question": "Borealis Hotel: is breakfast included in the room price?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "borealis_hotel.txt",
+        "page_number": 1,
+        "contains": "Breakfast is not included"
+      }
+    ],
+    "expected_fact_patterns": [
+      "not included|does not include|excluded|extra|additional"
+    ]
+  },
+  {
+    "id": "q11",
+    "category": "exact_name",
+    "question": "Where does Harbor Discovery Walk depart from?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "harbor_walk.txt",
+        "page_number": 1,
+        "contains": "from Pier 2"
+      }
+    ],
+    "expected_fact_patterns": [
+      "Pier 2"
+    ]
+  },
+  {
+    "id": "q12",
+    "category": "exact_name",
+    "question": "On which day does Castle Adventure run?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "castle_adventure.txt",
+        "page_number": 1,
+        "contains": "every Saturday"
+      }
+    ],
+    "expected_fact_patterns": [
+      "Saturday"
+    ]
+  },
+  {
+    "id": "q13",
+    "category": "exact_name",
+    "question": "River Lights Cruise: how long is the journey?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "river_cruise.txt",
+        "page_number": 1,
+        "contains": "lasts 60 minutes"
+      }
+    ],
+    "expected_fact_patterns": [
+      "60|one hour|1 hour"
+    ]
+  },
+  {
+    "id": "q14",
+    "category": "exact_name",
+    "question": "Forest Cycling Trail: what is the minimum participant height?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "forest_cycling.txt",
+        "page_number": 1,
+        "contains": "minimum height of 145 cm"
+      }
+    ],
+    "expected_fact_patterns": [
+      "145"
+    ]
+  },
+  {
+    "id": "q15",
+    "category": "exact_name",
+    "question": "What is the adult ticket price for the City Museum Visit?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "museum_visit.txt",
+        "page_number": 1,
+        "contains": "Adult tickets cost EUR 15"
+      }
+    ],
+    "expected_fact_patterns": [
+      "15"
+    ]
+  },
+  {
+    "id": "q16",
+    "category": "exact_name",
+    "question": "What time zone do the Shared booking terms use for cancellation deadlines?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "booking_terms.txt",
+        "page_number": 1,
+        "contains": "destination's local time"
+      }
+    ],
+    "expected_fact_patterns": [
+      "local time"
+    ]
+  },
+  {
+    "id": "q17",
+    "category": "multi_document",
+    "question": "Compare the free cancellation deadlines for Aurora Hotel and River Lights Cruise.",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "aurora_hotel.txt",
+        "page_number": 1,
+        "contains": "free cancellation until 48 hours"
+      },
+      {
+        "filename": "river_cruise.txt",
+        "page_number": 1,
+        "contains": "until 12 hours before departure"
+      }
+    ],
+    "expected_fact_patterns": [
+      "48",
+      "12"
+    ]
+  },
+  {
+    "id": "q18",
+    "category": "multi_document",
+    "question": "Which accepts a 5-year-old: Harbor Discovery Walk or Castle Adventure?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "harbor_walk.txt",
+        "page_number": 1,
+        "contains": "children aged 4 and older"
+      },
+      {
+        "filename": "castle_adventure.txt",
+        "page_number": 1,
+        "contains": "children aged 8 and older"
+      }
+    ],
+    "expected_fact_patterns": [
+      "Harbor",
+      "Castle",
+      "4",
+      "8"
+    ]
+  },
+  {
+    "id": "q19",
+    "category": "multi_document",
+    "question": "Compare airport shuttle prices at Aurora Hotel and Borealis Hotel.",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "aurora_hotel.txt",
+        "page_number": 1,
+        "contains": "shuttle costs EUR 12"
+      },
+      {
+        "filename": "borealis_hotel.txt",
+        "page_number": 1,
+        "contains": "airport shuttle is free"
+      }
+    ],
+    "expected_fact_patterns": [
+      "12",
+      "free"
+    ]
+  },
+  {
+    "id": "q20",
+    "category": "multi_document",
+    "question": "Compare departure piers for Harbor Discovery Walk and River Lights Cruise.",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "harbor_walk.txt",
+        "page_number": 1,
+        "contains": "from Pier 2"
+      },
+      {
+        "filename": "river_cruise.txt",
+        "page_number": 1,
+        "contains": "from Pier 4"
+      }
+    ],
+    "expected_fact_patterns": [
+      "Pier 2",
+      "Pier 4"
+    ]
+  },
+  {
+    "id": "q21",
+    "category": "multi_document",
+    "question": "Can a family take a stroller on Harbor Discovery Walk and Castle Adventure?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "harbor_walk.txt",
+        "page_number": 1,
+        "contains": "Strollers are allowed"
+      },
+      {
+        "filename": "castle_adventure.txt",
+        "page_number": 1,
+        "contains": "strollers are not permitted"
+      }
+    ],
+    "expected_fact_patterns": [
+      "Harbor",
+      "Castle",
+      "not|cannot|no strollers"
+    ]
+  },
+  {
+    "id": "q22",
+    "category": "multi_document",
+    "question": "What refund applies if the Forest Cycling operator cancels due to unsafe weather, and do the shared booking terms agree?",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "forest_cycling.txt",
+        "page_number": 1,
+        "contains": "customer receives a full refund"
+      },
+      {
+        "filename": "booking_terms.txt",
+        "page_number": 1,
+        "contains": "all affected customers receive a full refund"
+      }
+    ],
+    "expected_fact_patterns": [
+      "full refund"
+    ]
+  },
+  {
+    "id": "q23",
+    "category": "multi_document",
+    "question": "Compare admission charges for a 2-year-old at City Museum and River Lights Cruise.",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "museum_visit.txt",
+        "page_number": 1,
+        "contains": "Children under 7 enter free"
+      },
+      {
+        "filename": "river_cruise.txt",
+        "page_number": 1,
+        "contains": "Infants under 3 travel free"
+      }
+    ],
+    "expected_fact_patterns": [
+      "Museum",
+      "Cruise",
+      "free"
+    ]
+  },
+  {
+    "id": "q24",
+    "category": "multi_document",
+    "question": "Compare customer cancellation refunds for Borealis Hotel and Castle Adventure.",
+    "answerable": true,
+    "expected_sources": [
+      {
+        "filename": "borealis_hotel.txt",
+        "page_number": 1,
+        "contains": "reservations are non-refundable"
+      },
+      {
+        "filename": "castle_adventure.txt",
+        "page_number": 1,
+        "contains": "tickets are non-refundable"
+      }
+    ],
+    "expected_fact_patterns": [
+      "Borealis",
+      "Castle",
+      "non-refundable|no refund|not refund"
+    ]
+  },
+  {
+    "id": "q25",
+    "category": "unanswerable",
+    "question": "What is Aurora Hotel's Wi-Fi password?",
+    "answerable": false,
+    "expected_sources": [],
+    "expected_fact_patterns": []
+  },
+  {
+    "id": "q26",
+    "category": "unanswerable",
+    "question": "Are dogs allowed on the River Lights Cruise?",
+    "answerable": false,
+    "expected_sources": [],
+    "expected_fact_patterns": []
+  },
+  {
+    "id": "q27",
+    "category": "unanswerable",
+    "question": "Does the Harbor Discovery Walk include lunch?",
+    "answerable": false,
+    "expected_sources": [],
+    "expected_fact_patterns": []
+  },
+  {
+    "id": "q28",
+    "category": "unanswerable",
+    "question": "What visa is required for this trip?",
+    "answerable": false,
+    "expected_sources": [],
+    "expected_fact_patterns": []
+  },
+  {
+    "id": "q29",
+    "category": "unanswerable",
+    "question": "Can Forest Cycling Trail provide gluten-free meals?",
+    "answerable": false,
+    "expected_sources": [],
+    "expected_fact_patterns": []
+  },
+  {
+    "id": "q30",
+    "category": "unanswerable",
+    "question": "What is the City Museum's parking fee?",
+    "answerable": false,
+    "expected_sources": [],
+    "expected_fact_patterns": []
+  }
+]

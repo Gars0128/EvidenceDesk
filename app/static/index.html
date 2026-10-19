@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EvidenceDesk — answers you can check</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="/" aria-label="EvidenceDesk home"><span class="brand-mark">E<span>✓</span></span><span>EvidenceDesk</span></a>
+    <div class="header-right"><span class="local-badge"><span class="dot"></span> Local with Ollama</span><a href="/docs">API docs ↗</a></div>
+  </header>
+  <main>
+    <div class="intro"><span class="eyebrow">YOUR DOCUMENTS. YOUR EVIDENCE.</span><h1>Ask a question.<br><span>Follow the source.</span></h1><p>Upload a document, ask what matters, and check the exact words behind each answer.</p></div>
+    <div class="workspace">
+      <aside class="panel documents-panel" aria-labelledby="documents-heading">
+        <div class="panel-heading"><div><span class="step">01 / LIBRARY</span><h2 id="documents-heading">Documents</h2></div><button class="text-button" id="refresh-button" type="button">Refresh</button></div>
+        <form id="upload-form">
+          <label class="upload-box" for="files"><span class="upload-icon">↑</span><strong>Add your documents</strong><span>PDF with text or UTF-8 TXT · up to 10 MiB each</span><input id="files" name="files" type="file" accept=".pdf,.txt" multiple required></label>
+          <button class="button secondary full" type="submit" id="upload-button">Upload documents</button>
+          <label class="check-label"><input type="checkbox" id="auto-index" checked> Prepare for semantic search after upload</label>
+        </form>
+        <p id="upload-status" class="status" role="status" aria-live="polite"></p>
+        <div id="document-list" class="document-list"><p class="empty-note">Loading documents…</p></div>
+        <button id="more-documents" class="text-button" type="button" hidden>Load more documents</button>
+      </aside>
+      <section class="panel question-panel" aria-labelledby="question-heading">
+        <div class="panel-heading"><div><span class="step">02 / QUESTION</span><h2 id="question-heading">What do you want to know?</h2></div></div>
+        <form id="question-form">
+          <label for="question">Your question</label>
+          <textarea id="question" rows="7" maxlength="2000" required placeholder="Which excursions are suitable for children and offer free cancellation?"></textarea>
+          <details class="advanced"><summary>Search options</summary><div class="options">
+            <label for="mode">Retrieval mode<select id="mode"><option value="hybrid">Hybrid — words + meaning</option><option value="vector">Vector — meaning</option><option value="lexical">Lexical — words</option></select></label>
+            <label for="top-k">Source fragments<input id="top-k" type="number" min="1" max="8" value="3" required></label>
+            <label class="check-label"><input id="rerank" type="checkbox"> Rerank candidates with the local model</label>
+            <p class="help">Semantic modes require indexed documents. Reranking adds a model call and may take longer.</p>
+          </div></details>
+          <button class="button primary full" id="ask-button" type="submit">Ask documents <span>↗</span></button>
+          <button class="button secondary full" id="search-button" type="button">Inspect search results</button>
+        </form>
+        <p id="question-status" class="status" role="status" aria-live="polite"></p>
+        <div class="question-note"><span>↳</span><p>Start with a specific question. If the documents do not contain enough evidence, the answer will say so.</p></div>
+      </section>
+      <section class="panel answer-panel" aria-labelledby="answer-heading">
+        <div class="panel-heading"><div><span class="step">03 / EVIDENCE</span><h2 id="answer-heading">Answer & sources</h2></div><span id="answer-badge" class="badge neutral">Ready when you are</span></div>
+        <div id="answer" aria-live="polite"><div class="answer-empty"><div class="empty-symbol">“ ”</div><h3>A useful answer has a source.</h3><p>Your answer will appear here, with the document, page, and exact quotation for each claim.</p></div></div>
+        <div id="warnings" role="status"></div>
+        <details id="retrieval-panel" class="retrieval-panel" hidden><summary>Retrieved fragments <span id="retrieval-meta"></span></summary><div id="retrieved-fragments"></div></details>
+        <p id="answer-meta" class="answer-meta"></p>
+      </section>
+    </div>
+    <footer>Documents and models stay on your local setup. Quote matching and model review help check evidence; read the sources before relying on an answer.</footer>
+  </main>
+</body>
+</html>

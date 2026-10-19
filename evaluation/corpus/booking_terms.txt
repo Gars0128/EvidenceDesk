@@ -1,0 +1,8 @@
+Shared booking terms
+
+Each activity's own cancellation deadline applies. Inside its free cancellation window, cancellation returns the full ticket price.
+After that deadline, the cancellation fee is 100% of the ticket price unless a specific activity states an exception.
+If the operator cancels an activity because of unsafe weather, all affected customers receive a full refund.
+Groups of 6 or more people must request a group reservation in advance.
+All departure times and cancellation deadlines use the destination's local time.
+Hotel cancellation policies are governed by the individual hotel's conditions, not these activity terms.

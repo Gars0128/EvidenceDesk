@@ -180,7 +180,8 @@ page 1 with the source text:
 These are individual warm-model observations on a two-document smoke corpus,
 not a quality benchmark or latency guarantee. Temporary smoke records were removed;
 the downloaded model and healthy services remain available. The planned 30-question
-evaluation has not been implemented or run yet.
+evaluation is documented separately in [the evaluation protocol](../evaluation/README.md)
+and [the measured report](../evaluation/results/report.md).
 
 ## References
 

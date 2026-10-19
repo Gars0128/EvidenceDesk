@@ -19,3 +19,4 @@ CHUNK_OVERLAP = 200
 # Changing the model/dimensions requires reindexing and a matching SQL migration.
 EMBEDDING_MODEL = "embeddinggemma:300m"
 EMBEDDING_DIMENSIONS = 768
+CHAT_MODEL = os.environ.get("CHAT_MODEL", "qwen3:1.7b")

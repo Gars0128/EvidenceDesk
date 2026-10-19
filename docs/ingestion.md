@@ -8,8 +8,9 @@
 - Page-aware extraction and overlapping text chunks persisted in PostgreSQL.
 - Persistent processing errors and recovery of interrupted processing on startup.
 
-This stage does not implement retrieval, embeddings, answers, or a frontend.
-Use the Swagger interface at http://localhost:8000/docs to upload a file.
+This guide covers ingestion. Retrieval, answers, and the frontend are described
+in the main README and their separate guides. The Swagger interface at
+http://localhost:8000/docs also supports direct uploads.
 
 ## Try it
 

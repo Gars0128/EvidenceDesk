@@ -199,3 +199,24 @@ def test_failed_later_batch_never_exposes_partial_index(client, fake_ollama):
     assert client.post("/api/search", json={"query": "Aurora", "mode": "lexical"}).json()["results"]
     fake_ollama["error"] = None
     assert client.post(f"/api/documents/{document['id']}/index").json()["embedding_status"] == "ready"
+
+
+def test_reranking_can_promote_a_candidate_outside_top_k(client, fake_ollama):
+    for name in ("first", "second"):
+        client.post("/api/documents", files={"file": (name + ".txt", f"Aurora hotel {name}".encode())})
+    candidates = client.post("/api/search", json={"query": "Aurora", "top_k": 5}).json()["results"]
+    fake_ollama["chat_responses"] = [{"scores": {str(hit["chunk_id"]): index for index, hit in enumerate(candidates)}}]
+    response = client.post("/api/search", json={"query": "Aurora", "top_k": 1, "rerank": True})
+    assert response.status_code == 200
+    assert response.json()["reranked"] is True
+    assert response.json()["results"][0]["chunk_id"] == candidates[1]["chunk_id"]
+
+
+@pytest.mark.parametrize("scores", [{"999999": 3}, {}])
+def test_invalid_rerank_ids_never_silently_fall_back(client, fake_ollama, scores):
+    for name in ("first", "second"):
+        client.post("/api/documents", files={"file": (name + ".txt", f"Aurora hotel {name}".encode())})
+    fake_ollama["chat_responses"] = [{"scores": scores}]
+    response = client.post("/api/search", json={"query": "Aurora", "rerank": True})
+    assert response.status_code == 502
+    assert response.json()["detail"]["code"] == "invalid_rerank_response"

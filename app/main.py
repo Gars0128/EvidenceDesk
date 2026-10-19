@@ -3,10 +3,12 @@ from contextlib import asynccontextmanager
 
 import psycopg
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from starlette.concurrency import run_in_threadpool
 
 from app import db
+from app.document_api import router as document_router
 
 logger = logging.getLogger(__name__)
 
@@ -20,10 +22,20 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="EvidenceDesk",
-    description="Document answers with verifiable sources. Stage 1: application skeleton.",
-    version="0.1.0",
+    description="Document answers with verifiable sources. PDF/TXT ingestion and document statuses.",
+    version="0.2.0",
     lifespan=lifespan,
 )
+app.include_router(document_router)
+
+
+@app.exception_handler(psycopg.Error)
+async def database_error(request, exc):
+    logger.warning("Database operation failed: %s", type(exc).__name__)
+    return JSONResponse(
+        status_code=503,
+        content={"detail": {"code": "database_unavailable", "message": "Database is unavailable. Please try again later."}},
+    )
 
 
 class HealthResponse(BaseModel):

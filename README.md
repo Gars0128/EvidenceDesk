@@ -3,8 +3,12 @@
 Answers about travel documents with verifiable document names, pages, and quotations.
 See [PLAN.md](PLAN.md) for the incremental implementation plan.
 
-**Current stage: step 1 — application and database skeleton.** Upload, search,
-answers, and the UI come in later steps. No LLM API key is needed yet.
+**Current stage: PDF/TXT ingestion is implemented.** Upload documents, inspect
+processing statuses, and preserve page-aware text chunks. Search, answers, and
+the UI come in later steps. No LLM API key is needed yet.
+
+See [the ingestion guide](docs/ingestion.md) for API examples, limits, architecture,
+and the test report.
 
 ## Docker quick start
 
@@ -27,7 +31,7 @@ Expected HTTP 200 response:
 {"status":"ok","database":"ok"}
 ```
 
-The API initializes the vector extension and initial schema on startup. Compose
+The API initializes the vector extension and applies pending SQL migrations on startup. Compose
 waits for database readiness before starting the API. Health checks the live
 connection, vector extension, and schema version; a database outage returns 503.
 Schema initialization failure prevents API startup.
@@ -77,8 +81,10 @@ Install development requirements, then run database-independent unit tests:
 .\.venv\Scripts\python -m pytest -q
 ```
 
-Tests cover healthy readiness, missing schema, database outages without credential
-leaks, and startup failure. Database calls are mocked in these tests.
+The default run covers health, parsing, chunking, validation, duplicates, and API
+error handling. Database calls are mocked; six PostgreSQL integration tests are
+skipped unless explicitly enabled. See [the ingestion guide](docs/ingestion.md#tests)
+for running the full suite against an isolated database.
 
 Actual database smoke check:
 
@@ -90,7 +96,7 @@ docker compose exec db psql -U evidencedesk -d evidencedesk -c "SELECT extversio
 
 Adjust the database username/name in the last command if you changed the defaults.
 
-## Structure
+## Verification history
 
 ### Step 1 verification record
 
@@ -106,10 +112,16 @@ Verified on October 19, 2026 with Python 3.13 and Docker:
 
 ```text
 app/main.py       FastAPI application and readiness endpoint
-app/db.py         Connections and initial schema setup
-app/schema.sql    Idempotent initial schema
+app/document_api.py  Upload/list endpoints and response models
+app/documents.py   Document, page, and chunk persistence
+app/ingestion.py   Filename checks, PDF/TXT extraction, and chunking
+app/config.py      Configurable ingestion limits
+app/db.py          Connections, migrations, and interrupted-job recovery
+app/schema.sql     Baseline schema
+app/migrations/    Versioned SQL changes
 compose.yaml      API and PostgreSQL services
-tests/            Readiness and startup tests
+tests/            Unit, API, and real PostgreSQL tests
+docs/ingestion.md  Ingestion contract and verification report
 PLAN.md           Implementation steps
 ```
 
@@ -121,8 +133,9 @@ PLAN.md           Implementation steps
 - Unhealthy API: inspect `docker compose logs api db`.
 - Changing credentials in `.env` does not update an existing PostgreSQL volume.
   Keep the original credentials or intentionally reset disposable data.
-- Schema file edits require rebuilding and restarting the API. This initializer
-  covers the first schema only; later changes will need explicit migrations.
+- Code and migration changes require rebuilding and restarting the API. Add new
+  numbered SQL migrations to `app/db.py`; do not edit migrations already applied
+  to an existing database.
 
 ## Implementation references
 

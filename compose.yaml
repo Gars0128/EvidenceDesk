@@ -22,6 +22,9 @@ services:
       PGDATABASE: ${POSTGRES_DB:-evidencedesk}
       PGUSER: ${POSTGRES_USER:-evidencedesk}
       PGPASSWORD: ${POSTGRES_PASSWORD:-evidencedesk_local}
+      MAX_UPLOAD_BYTES: ${MAX_UPLOAD_BYTES:-10485760}
+      MAX_PDF_PAGES: ${MAX_PDF_PAGES:-300}
+      MAX_TEXT_CHARS: ${MAX_TEXT_CHARS:-2000000}
     ports:
       - "127.0.0.1:${APP_PORT:-8000}:8000"
     depends_on:

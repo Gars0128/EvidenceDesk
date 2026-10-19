@@ -32,6 +32,8 @@ Acceptance: application and database start; health reports readiness.
 
 ### 2. `feat: ingest PDF and TXT with source pages`
 
+Status: implemented and tested on October 19, 2026; awaiting the user's commit.
+
 Implement `POST /api/documents` and `GET /api/documents`. Enforce file size and
 format limits and safe filenames. Store documents, pages, chunks, and
 processing/ready/error states. Detect duplicates using SHA-256 and report them
@@ -89,6 +91,7 @@ Acceptance: a new user can start the app and complete the demo without reading c
 
 ## Working agreement
 
-One step at a time: implement, run appropriate checks, make a small commit, report results.
+One step at a time: implement, run appropriate checks, and report what changed and where.
+The user creates commits. Do not commit or push without an explicit request.
 Keep documentation in English. Do not add LangChain, OCR, queues, a separate
 frontend, or authentication without a concrete need.
